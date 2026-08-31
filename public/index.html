@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f3eee6" />
+  <title>Noise Monitor · 环境声音</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">LOCAL ENVIRONMENT / MAC MINI</p>
+        <h1>环境声音</h1>
+      </div>
+      <div class="service-state"><i id="statusDot"></i><span id="serviceState">正在连接本地服务</span></div>
+    </header>
+
+    <section class="readout" aria-labelledby="latestTitle">
+      <div class="readout-main">
+        <p id="latestTitle" class="label">最近一次采样</p>
+        <p class="level"><span id="latestValue">—</span><small id="latestUnit">dBFS</small></p>
+        <p id="latestTime" class="muted">等待采集器写入数据</p>
+      </div>
+      <div class="readout-side">
+        <div><span>60 秒峰值</span><strong id="peakValue">—</strong></div>
+        <div><span>当前视图等效平均</span><strong id="averageValue">—</strong></div>
+        <div><span>采集来源</span><strong id="sourceValue">未连接</strong></div>
+      </div>
+    </section>
+
+    <section class="measurement-note" id="measurementNote">
+      <strong id="measurementTitle">未校准 · 相对声级</strong>
+      <p id="measurementBody">当前数据以 dBFS 表示，只用于比较同一设备、同一位置的相对变化。</p>
+    </section>
+
+    <section class="trend" aria-labelledby="trendTitle">
+      <div class="trend-head">
+        <div><p class="eyebrow">TREND</p><h2 id="trendTitle">声音曲线</h2><p>点为等效声级；一周显示每日最低—最高范围，一个月显示每日聚合平均。</p></div>
+        <div class="range-tabs" role="tablist" aria-label="趋势时间范围">
+          <button data-range="24h" class="active" role="tab">24 小时</button>
+          <button data-range="7d" role="tab">一周</button>
+          <button data-range="30d" role="tab">一个月</button>
+        </div>
+      </div>
+      <div id="chart" class="chart" aria-live="polite"></div>
+      <div class="chart-footer"><span id="rangeStart">暂无数据</span><span id="sampleCount">0 条样本</span><span id="rangeEnd">—</span></div>
+    </section>
+
+    <footer>只保存每小时统计值，不保存录音。校准后的读数仍不是计量级测量结果。</footer>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

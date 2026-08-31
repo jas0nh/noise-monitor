@@ -1,0 +1,15 @@
+{
+  "name": "noise-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "build:capture": "swiftc scripts/noise-capture.swift -o scripts/.noise-capture -framework AVFoundation",
+    "sample": "node scripts/noise-sampler.mjs"
+  },
+  "engines": {
+    "node": ">=22.5"
+  }
+}
