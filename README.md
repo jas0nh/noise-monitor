@@ -17,7 +17,15 @@
 - 配置校准偏移后显示估算 dB SPL，但仍不是计量级声级计。
 - SQLite 位于 `data/noise.sqlite`，永久保留每小时摘要。
 
-## 安装本地服务
+## 常驻网页（暂不启用采样）
+
+```bash
+./scripts/install-server-launch-agent.sh
+```
+
+这只安装 `com.jason.noise-monitor.server`，固定监听 `17302`。网页、历史数据库和 API 会随登录自动启动；小时采样保持关闭，适合等待收音硬件接入期间使用。
+
+## 接入硬件后启用完整服务
 
 ```bash
 ./scripts/install-launch-agents.sh
@@ -28,7 +36,7 @@
 - `com.jason.noise-monitor.server`：常驻 LAN 网页服务。
 - `com.jason.noise-monitor.sampler`：每小时整点运行一次采集器。
 
-当前 Mac mini 没有可识别的音频输入时，网页仍可使用并显示“未检测到麦克风输入”。接入 USB、显示器或其他麦克风后，重新运行安装脚本并在 macOS 中批准麦克风权限。
+当前 Mac mini 没有可识别的音频输入时，网页仍可使用并显示“未检测到麦克风输入”。接入小米智能屏、USB、显示器或其他可供 macOS 使用的麦克风后，运行完整安装脚本并在 macOS 中批准麦克风权限。
 
 ## 校准与 Hermes 告警
 
