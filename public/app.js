@@ -1,6 +1,7 @@
 import { decibelAverage, displayLevel, isCalibrated } from "/noise-metrics.js";
 
 let selectedRange = "24h";
+let liveAbort=null,liveContext=null,liveNextTime=0;
 const $ = (id) => document.getElementById(id);
 const format = (value, unit) => Number.isFinite(value) ? `${value.toFixed(1)} ${unit}` : "—";
 const localDay = (time) => new Date(time).toLocaleDateString("sv-SE");
@@ -45,6 +46,36 @@ function renderRecordings(samples) {
   $("recordingList").innerHTML=recordings.map((sample)=>`<article class="recording-item"><div><strong>${new Date(sample.sampledAt).toLocaleString("zh-CN")}</strong><span>${Math.round((sample.audioBytes||0)/1024)} KB · ${Math.round(sample.durationSeconds)} 秒</span></div><audio controls preload="none" src="${sample.audioUrl}">浏览器不支持音频播放。</audio></article>`).join("");
 }
 
+function setLiveUi(active,status) {
+  $("liveToggle").classList.toggle("active",active);
+  $("liveToggle").textContent=active?"停止监听":"开始监听";
+  $("liveStatus").textContent=status;
+  if(!active){$("liveLevel").textContent="—";$("liveBar").style.width="0";}
+}
+
+async function startLiveMonitor() {
+  liveAbort=new AbortController();
+  liveContext=new AudioContext({latencyHint:"interactive"});
+  await liveContext.resume();liveNextTime=liveContext.currentTime+.08;
+  setLiveUi(true,"正在连接实时音频…");
+  try{
+    const response=await fetch("/api/live",{signal:liveAbort.signal,cache:"no-store"});
+    if(!response.ok){const error=await response.json().catch(()=>({}));throw new Error(error.error||`HTTP ${response.status}`);}
+    const reader=response.body.getReader();let pending=new Uint8Array(),sampleRate=null;
+    setLiveUi(true,"监听中 · 关闭后不会保留这段实时音频");
+    while(true){const {done,value}=await reader.read();if(done)break;const merged=new Uint8Array(pending.length+value.length);merged.set(pending);merged.set(value,pending.length);pending=merged;
+      if(sampleRate===null){if(pending.length<8)continue;if(new TextDecoder().decode(pending.slice(0,4))!=="NMON")throw new Error("invalid_audio_stream");sampleRate=new DataView(pending.buffer,pending.byteOffset+4,4).getUint32(0,true);pending=pending.slice(8);}
+      const byteLength=pending.length-pending.length%4;if(!byteLength)continue;const view=new DataView(pending.buffer,pending.byteOffset,byteLength),samples=new Float32Array(byteLength/4);let energy=0;
+      for(let i=0;i<samples.length;i++){const value=view.getFloat32(i*4,true);samples[i]=value;energy+=value*value;}
+      pending=pending.slice(byteLength);const db=20*Math.log10(Math.max(Math.sqrt(energy/samples.length),.000001));$("liveLevel").textContent=db.toFixed(1);$("liveBar").style.width=`${Math.max(0,Math.min(100,(db+80)/.8))}%`;
+      const buffer=liveContext.createBuffer(1,samples.length,sampleRate);buffer.copyToChannel(samples,0);const source=liveContext.createBufferSource();source.buffer=buffer;source.connect(liveContext.destination);liveNextTime=Math.max(liveNextTime,liveContext.currentTime+.04);source.start(liveNextTime);liveNextTime+=buffer.duration;
+    }
+  }catch(error){if(error.name!=="AbortError")setLiveUi(false,error.message==="live_monitor_busy"?"已有其他浏览器正在监听":"监听失败，请重试");}
+  finally{if(liveAbort){liveAbort=null;if(liveContext){await liveContext.close().catch(()=>{});liveContext=null;}if($("liveToggle").classList.contains("active"))setLiveUi(false,"实时监听已结束");}}
+}
+
+function stopLiveMonitor(){if(liveAbort){liveAbort.abort();liveAbort=null;}if(liveContext){liveContext.close().catch(()=>{});liveContext=null;}setLiveUi(false,"当前未连接");}
+
 async function refresh() {
   try {
     const response=await fetch(`/api/noise?range=${selectedRange}`,{cache:"no-store"});
@@ -73,4 +104,6 @@ async function refresh() {
 }
 
 document.querySelectorAll("[data-range]").forEach((button)=>button.addEventListener("click",()=>{selectedRange=button.dataset.range;document.querySelectorAll("[data-range]").forEach((item)=>item.classList.toggle("active",item===button));refresh()}));
+$("liveToggle").addEventListener("click",()=>liveAbort?stopLiveMonitor():startLiveMonitor());
+window.addEventListener("pagehide",stopLiveMonitor);
 refresh(); setInterval(refresh,60_000);

@@ -8,6 +8,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/recordings.css" />
+  <link rel="stylesheet" href="/live.css" />
 </head>
 <body>
   <main class="shell">
@@ -35,6 +36,13 @@
     <section class="measurement-note" id="measurementNote">
       <strong id="measurementTitle">未校准 · 相对声级</strong>
       <p id="measurementBody">当前数据以 dBFS 表示，只用于比较同一设备、同一位置的相对变化。</p>
+    </section>
+
+    <section class="live-monitor" aria-labelledby="liveTitle">
+      <div class="live-copy"><p class="eyebrow">LIVE MONITOR</p><h2 id="liveTitle">即时监听</h2><p>按需连接 Mac mini 的麦克风，声音只实时传输到当前浏览器，不保存为额外录音。</p></div>
+      <div class="live-meter" aria-live="polite"><span id="liveLevel">—</span><small>dBFS</small><i><b id="liveBar"></b></i></div>
+      <button id="liveToggle" type="button">开始监听</button>
+      <p id="liveStatus" class="live-status">当前未连接</p>
     </section>
 
     <section class="trend" aria-labelledby="trendTitle">

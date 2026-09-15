@@ -1,5 +1,6 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
+import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getMonitorState, openDatabase } from "./lib/database.mjs";
@@ -11,6 +12,8 @@ const databasePath = process.env.NOISE_DB_PATH || path.join(root, "data", "noise
 const host = process.env.HOST || "0.0.0.0";
 const port = Number(process.env.PORT || 17302);
 const database = openDatabase(databasePath);
+const liveCapturePath = path.join(root, "build", "NoiseCapture.app", "Contents", "MacOS", "NoiseCapture");
+let liveCapture = null;
 
 const mime = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -72,6 +75,22 @@ const server = createServer((request, response) => {
   if (url.pathname === "/api/noise") {
     json(response, 200, noiseSnapshot(url.searchParams.get("range") || "24h")); return;
   }
+  if (url.pathname === "/api/live") {
+    if(request.method==="HEAD"){response.writeHead(204,{"Cache-Control":"no-store"});response.end();return;}
+    if(liveCapture){json(response,409,{ok:false,error:"live_monitor_busy"});return;}
+    if(!existsSync(liveCapturePath)){json(response,503,{ok:false,error:"capture_helper_missing"});return;}
+    const child=spawn(liveCapturePath,["--stream","3600"],{stdio:["ignore","pipe","pipe"]});
+    liveCapture=child;
+    let stderr="";
+    child.stderr.on("data",chunk=>{stderr=(stderr+chunk).slice(-1000)});
+    response.writeHead(200,{"Content-Type":"application/octet-stream","Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Transfer-Encoding":"chunked"});
+    child.stdout.pipe(response);
+    const stop=()=>{if(!child.killed)child.kill("SIGTERM")};
+    request.on("aborted",stop);response.on("close",stop);
+    child.on("error",()=>response.destroy());
+    child.on("close",()=>{if(liveCapture===child)liveCapture=null;if(!response.writableEnded)response.end()});
+    return;
+  }
   if (url.pathname.startsWith("/api/audio/")) {
     const id=decodeURIComponent(url.pathname.slice("/api/audio/".length));
     const recording=database.prepare("SELECT audio_path, audio_mime FROM noise_samples WHERE id = ?").get(id);
@@ -104,6 +123,6 @@ server.listen(port, host, () => {
   console.log(`SQLite: ${databasePath}`);
 });
 
-const shutdown = () => server.close(() => { database.close(); process.exit(0); });
+const shutdown = () => { if(liveCapture&&!liveCapture.killed)liveCapture.kill("SIGTERM"); server.close(() => { database.close(); process.exit(0); }); };
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);

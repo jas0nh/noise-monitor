@@ -1,0 +1,27 @@
+.live-monitor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 28px;
+  margin-top: 28px;
+  padding: 28px 32px;
+  border-radius: 24px;
+  background: #28231f;
+  color: white;
+}
+.live-copy h2 { margin: 7px 0 6px; font-family: Georgia, "Songti SC", serif; font-size: 28px; font-weight: 500; }
+.live-copy p:last-child { max-width: 560px; margin: 0; color: #bfb5ad; font-size: 12px; line-height: 1.7; }
+.live-meter { display: grid; grid-template-columns: auto auto; align-items: baseline; min-width: 150px; }
+.live-meter > span { font-size: 38px; font-weight: 650; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.live-meter > small { margin-left: 7px; color: #bfb5ad; }
+.live-meter i { grid-column: 1 / -1; display: block; height: 4px; margin-top: 8px; overflow: hidden; border-radius: 2px; background: #ffffff1f; }
+.live-meter b { display: block; width: 0; height: 100%; border-radius: inherit; background: #dfac7c; transition: width .1s linear; }
+#liveToggle { min-width: 112px; border: 1px solid #ffffff2b; border-radius: 12px; padding: 11px 16px; background: #fffdf9; color: #28231f; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer; }
+#liveToggle.active { background: #91472f; color: white; }
+.live-status { grid-column: 1 / -1; margin: -14px 0 0; color: #9f958e; font-size: 11px; }
+@media (max-width: 760px) {
+  .live-monitor { grid-template-columns: 1fr auto; gap: 22px 16px; padding: 24px 22px; }
+  .live-copy { grid-column: 1 / -1; }
+  .live-meter { min-width: 0; }
+  .live-status { margin-top: -8px; }
+}

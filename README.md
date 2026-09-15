@@ -8,6 +8,7 @@
 - 局域网：`http://Jasons-Mac-mini.local:17302`
 - API：`GET /api/noise?range=24h|7d|30d`
 - 健康检查：`GET /api/health`
+- 即时监听：用户在网页主动开启；通过 `GET /api/live` 传输低延迟 PCM，停止后不额外保存。
 
 ## 数据与测量口径
 
