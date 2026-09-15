@@ -14,6 +14,7 @@
 - 每小时采样 60 秒，保存 dBFS、峰值、最低窗口值、时间及同一时段的 AAC/M4A 录音。
 - 录音保存在 `data/audio/YYYY/MM/`，不会提交到 Git；默认长期保留。
 - 64 kbps 音频约占 0.5 MB/小时、约 350 MB/月。
+- 每天 00:00–06:59 为静默窗口，不测量也不录音；07:00 恢复。
 - 未校准数据仅用于比较同一设备、同一位置的相对变化。
 - 配置校准偏移后显示估算 dB SPL，但仍不是计量级声级计。
 - SQLite 位于 `data/noise.sqlite`，永久保留每小时摘要。
@@ -36,6 +37,8 @@
 
 - `com.jason.noise-monitor.server`：常驻 LAN 网页服务。
 - `com.jason.noise-monitor.sampler`：每小时整点运行一次采集器。
+
+静默窗口由 sampler plist 中的 `NOISE_QUIET_START_HOUR` 和 `NOISE_QUIET_END_HOUR` 控制，采用本机时区，起始小时包含、结束小时不包含。
 
 当前 Mac mini 没有可识别的音频输入时，网页仍可使用并显示“未检测到麦克风输入”。接入小米智能屏、USB、显示器或其他可供 macOS 使用的麦克风后，运行完整安装脚本并在 macOS 中批准麦克风权限。
 
