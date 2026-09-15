@@ -7,6 +7,7 @@
   <title>Noise Monitor · 环境声音</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/recordings.css" />
 </head>
 <body>
   <main class="shell">
@@ -49,7 +50,12 @@
       <div class="chart-footer"><span id="rangeStart">暂无数据</span><span id="sampleCount">0 条样本</span><span id="rangeEnd">—</span></div>
     </section>
 
-    <footer>只保存每小时统计值，不保存录音。校准后的读数仍不是计量级测量结果。</footer>
+    <section class="recordings" aria-labelledby="recordingsTitle">
+      <div class="recordings-head"><div><p class="eyebrow">LISTEN BACK</p><h2 id="recordingsTitle">真实采样</h2></div><p>每小时保留 60 秒 AAC 音频，仅存放在这台 Mac mini。</p></div>
+      <div id="recordingList" class="recording-list"><p class="recording-empty">等待第一段录音</p></div>
+    </section>
+
+    <footer>每小时保存统计值及 60 秒真实录音。录音可能包含谈话等私人内容，请仅在可信网络中访问。校准后的读数仍不是计量级测量结果。</footer>
   </main>
   <script type="module" src="/app.js"></script>
 </body>

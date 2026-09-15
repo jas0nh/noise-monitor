@@ -3,5 +3,7 @@
 data/*.sqlite
 data/*.sqlite-*
 data/alert-state.json
+data/audio/
 logs/*.log
 scripts/.noise-capture
+build/

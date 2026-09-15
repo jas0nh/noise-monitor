@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleExecutable</key><string>NoiseCapture</string>
+  <key>CFBundleIdentifier</key><string>com.jason.noise-monitor.capture</string>
+  <key>CFBundleName</key><string>Noise Capture</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>1.0</string>
+  <key>NSMicrophoneUsageDescription</key><string>每小时采集 60 秒环境声音，用于噪音趋势和本地回放。</string>
+</dict></plist>

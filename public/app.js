@@ -39,6 +39,12 @@ function monitorMessage(monitor) {
   return ["","等待采集器首次运行"];
 }
 
+function renderRecordings(samples) {
+  const recordings=samples.filter((sample)=>sample.audioUrl).slice(-24).reverse();
+  if(!recordings.length){$("recordingList").innerHTML='<p class="recording-empty">等待第一段录音</p>';return;}
+  $("recordingList").innerHTML=recordings.map((sample)=>`<article class="recording-item"><div><strong>${new Date(sample.sampledAt).toLocaleString("zh-CN")}</strong><span>${Math.round((sample.audioBytes||0)/1024)} KB · ${Math.round(sample.durationSeconds)} 秒</span></div><audio controls preload="none" src="${sample.audioUrl}">浏览器不支持音频播放。</audio></article>`).join("");
+}
+
 async function refresh() {
   try {
     const response=await fetch(`/api/noise?range=${selectedRange}`,{cache:"no-store"});
@@ -59,6 +65,7 @@ async function refresh() {
     $("measurementBody").textContent=calibrated?`当前应用 ${latest.calibrationOffset>0?"+":""}${latest.calibrationOffset.toFixed(1)} dB 校准偏移；用于家庭趋势观察，不替代专业声级计。`:"当前数据只用于比较同一设备、同一位置的相对变化；未校准时不会触发绝对声压阈值告警。";
     const [statusClass,statusText]=monitorMessage(data.monitor); $("statusDot").className=statusClass; $("serviceState").textContent=statusText;
     drawChart(data.samples,selectedRange,unit);
+    renderRecordings(data.samples);
     $("sampleCount").textContent=`${data.samples.length} 条样本 · ${unit}`;
     $("rangeStart").textContent=data.samples.length?new Date(data.samples[0].sampledAt).toLocaleDateString("zh-CN"):"暂无数据";
     $("rangeEnd").textContent=data.samples.length?new Date(data.samples.at(-1).sampledAt).toLocaleDateString("zh-CN"):"—";

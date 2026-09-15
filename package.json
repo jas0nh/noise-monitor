@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test tests/*.test.mjs",
-    "build:capture": "swiftc scripts/noise-capture.swift -o scripts/.noise-capture -framework AVFoundation",
+    "build:capture": "mkdir -p build/NoiseCapture.app/Contents/MacOS && cp app/NoiseCapture/Info.plist build/NoiseCapture.app/Contents/Info.plist && swiftc scripts/noise-capture.swift -o build/NoiseCapture.app/Contents/MacOS/NoiseCapture -framework AVFoundation && codesign --force --sign - build/NoiseCapture.app",
     "sample": "node scripts/noise-sampler.mjs"
   },
   "engines": {
