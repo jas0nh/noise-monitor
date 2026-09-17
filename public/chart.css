@@ -1,0 +1,22 @@
+.chart { position: relative; }
+.chart .grid-line { stroke: #ded4c9; stroke-width: 1; }
+.chart .time-guide { stroke: #e8e0d8; stroke-width: 1; stroke-dasharray: 3 6; }
+.chart .axis-line { stroke: #857970; stroke-width: 1.25; }
+.chart .axis-label { fill: #766b63; font-size: 12px; font-variant-numeric: tabular-nums; }
+.chart .y-label { text-anchor: end; }
+.chart .axis-title { fill: #766b63; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-anchor: middle; }
+.chart .range-mark { stroke: #dfac7c; stroke-width: 7; stroke-linecap: round; opacity: .42; }
+.chart .trend-line { fill: none; stroke: #a95732; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+.chart .point-hit { fill: transparent; }
+.chart .point-dot { fill: #fffdf9; stroke: #a95732; stroke-width: 3; }
+.chart .chart-point:focus { outline: none; }
+.chart .chart-point:focus .point-dot, .chart .chart-point:hover .point-dot { fill: #a95732; stroke: #fffdf9; stroke-width: 2; }
+.chart .latest-label { fill: #813e25; font-size: 12px; font-weight: 800; paint-order: stroke; stroke: #fffdf9; stroke-width: 4px; }
+.chart-tooltip { position: absolute; z-index: 2; display: grid; gap: 4px; width: 184px; padding: 11px 12px; border: 1px solid #ded4c9; border-radius: 10px; background: #28231fee; color: white; box-shadow: 0 12px 30px #3b2b2030; pointer-events: none; }
+.chart-tooltip[hidden] { display: none; }
+.chart-tooltip strong { font-size: 12px; }
+.chart-tooltip span { color: #d7cdc5; font-size: 11px; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .chart svg { min-width: 760px; }
+  .chart-tooltip { position: fixed; left: 16px !important; right: 16px; bottom: 16px; top: auto !important; width: auto; }
+}
