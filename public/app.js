@@ -92,6 +92,11 @@ function renderRecordings(samples) {
   $("recordingList").innerHTML=recordings.map((sample)=>`<article class="recording-item"><div><strong>${new Date(sample.sampledAt).toLocaleString("zh-CN")}</strong><span>${Math.round((sample.audioBytes||0)/1024)} KB · ${Math.round(sample.durationSeconds)} 秒</span></div><audio controls preload="none" src="${sample.audioUrl}">浏览器不支持音频播放。</audio></article>`).join("");
 }
 
+function renderLoudest(samples) {
+  if(!samples.length){$("loudestList").innerHTML='<p class="recording-empty">等待声音样本</p>';return;}
+  $("loudestList").innerHTML=samples.map((sample,index)=>`<article class="loudest-item"><span class="loudest-rank">${index+1}</span><div class="loudest-reading"><strong>${sample.laeq.toFixed(1)} <small>dBFS</small></strong><span>${new Date(sample.sampledAt).toLocaleString("zh-CN")}</span></div><div class="loudest-scale" aria-hidden="true"><i style="width:${Math.max(0,Math.min(100,(sample.laeq+80)/.8))}%"></i></div><audio controls preload="none" src="${sample.audioUrl}">浏览器不支持音频播放。</audio></article>`).join("");
+}
+
 function setLiveUi(active,status) {
   $("liveToggle").classList.toggle("active",active);
   $("liveToggle").textContent=active?"停止监听":"开始监听";
@@ -143,6 +148,7 @@ async function refresh() {
     const [statusClass,statusText]=monitorMessage(data.monitor); $("statusDot").className=statusClass; $("serviceState").textContent=statusText;
     drawChart(data.samples,selectedRange,unit,data.generatedAt);
     renderRecordings(data.samples);
+    renderLoudest(data.topLoudest||[]);
     $("sampleCount").textContent=`${data.samples.length} 条样本 · ${unit}`;
     $("rangeStart").textContent=data.samples.length?new Date(data.samples[0].sampledAt).toLocaleDateString("zh-CN"):"暂无数据";
     $("rangeEnd").textContent=data.samples.length?new Date(data.samples.at(-1).sampledAt).toLocaleDateString("zh-CN"):"—";

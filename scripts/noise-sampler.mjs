@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { openDatabase, setMonitorState } from "../lib/database.mjs";
 import { isQuietHour } from "../lib/schedule.mjs";
+import { pruneAudio } from "../lib/audio-retention.mjs";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const databasePath=process.env.NOISE_DB_PATH||path.join(root,"data","noise.sqlite");
@@ -37,8 +38,9 @@ try{
   database.prepare(`INSERT INTO noise_samples (id,sampled_at,duration_seconds,laeq,peak,floor,calibration_offset,source,created_at,audio_path,audio_mime,audio_bytes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(sampled_at) DO UPDATE SET duration_seconds=excluded.duration_seconds,laeq=excluded.laeq,peak=excluded.peak,floor=excluded.floor,calibration_offset=excluded.calibration_offset,source=excluded.source,audio_path=excluded.audio_path,audio_mime=excluded.audio_mime,audio_bytes=excluded.audio_bytes`).run(sample.id,sample.sampledAt,sample.durationSeconds,sample.laeq,sample.peak,sample.floor,sample.calibrationOffset,sample.source,sample.createdAt,sample.audioPath,sample.audioMime,sample.audioBytes);
   if(existing?.audio_path&&existing.audio_path!==sample.audioPath)await rm(path.join(root,existing.audio_path),{force:true});
   setMonitorState(database,"last_status","ok"); setMonitorState(database,"last_sample_at",String(sampledAt));
+  const retention=await pruneAudio(database,root);
   const displayed=sample.laeq+calibrationOffset;
   if(alertsEnabled&&calibrationOffset!==0&&displayed>=threshold){await mkdir(path.dirname(statePath),{recursive:true});let state={};try{state=JSON.parse(await readFile(statePath,"utf8"))}catch{};if(!state.lastSentAt||Date.now()-state.lastSentAt>=6*3_600_000){const message=`环境声音提醒：本地监测器在 ${new Date(sampledAt).toLocaleString("zh-CN")} 采样到估算 ${displayed.toFixed(1)} dB SPL，超过 ${threshold.toFixed(1)} dB 关注线。`;const delivery=await new Promise((resolve,reject)=>{const child=spawn("/Users/jason/.hermes/hermes-agent/venv/bin/hermes",["send","--to","weixin","--json",message],{stdio:["ignore","pipe","pipe"]});let out="",err="";child.stdout.on("data",d=>out+=d);child.stderr.on("data",d=>err+=d);child.on("close",code=>code===0?resolve(JSON.parse(out)):reject(new Error(err||out))) });if(delivery.success!==true||delivery.platform!=="weixin"||typeof delivery.chat_id!=="string"||!delivery.chat_id||typeof delivery.message_id!=="string"||!delivery.message_id||!String(delivery.note||"").includes("home channel"))throw new Error("hermes_delivery_unconfirmed");await writeFile(statePath,`${JSON.stringify({lastSentAt:Date.now(),messageId:delivery.message_id})}\n`,{mode:0o600})}}
-  console.log(JSON.stringify({ok:true,sampledAt,laeq:sample.laeq,audioPath:sample.audioPath,audioBytes}));
+  console.log(JSON.stringify({ok:true,sampledAt,laeq:sample.laeq,audioPath:sample.audioPath,audioBytes,retention}));
   }
 }catch(error){const status=String(error.message||"capture_error").split("\n")[0];setMonitorState(database,"last_status",status);setMonitorState(database,"last_error_at",String(Date.now()));console.error(status);process.exitCode=1}finally{database.close()}

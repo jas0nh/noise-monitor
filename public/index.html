@@ -59,12 +59,17 @@
       <div class="chart-footer"><span id="rangeStart">暂无数据</span><span id="sampleCount">0 条样本</span><span id="rangeEnd">—</span></div>
     </section>
 
+    <section class="loudest" aria-labelledby="loudestTitle">
+      <div class="loudest-head"><div><p class="eyebrow">LOUDNESS RANKING</p><h2 id="loudestTitle">响度 Top 5</h2></div><p>按历史 60 秒等效声级 LAeq 排名，单位为设备原始 dBFS。</p></div>
+      <div id="loudestList" class="loudest-list"><p class="recording-empty">等待声音样本</p></div>
+    </section>
+
     <section class="recordings" aria-labelledby="recordingsTitle">
-      <div class="recordings-head"><div><p class="eyebrow">LISTEN BACK</p><h2 id="recordingsTitle">真实采样</h2></div><p>每小时保留 60 秒 AAC 音频，仅存放在这台 Mac mini。</p></div>
+      <div class="recordings-head"><div><p class="eyebrow">RECENT AUDIO</p><h2 id="recordingsTitle">最近 24 小时</h2></div><p>每小时一段 60 秒 AAC 音频，仅存放在这台 Mac mini。</p></div>
       <div id="recordingList" class="recording-list"><p class="recording-empty">等待第一段录音</p></div>
     </section>
 
-    <footer>每小时保存统计值及 60 秒真实录音。录音可能包含谈话等私人内容，请仅在可信网络中访问。校准后的读数仍不是计量级测量结果。</footer>
+    <footer>音频仅保留最近 24 小时与历史响度 Top 5；统计值长期保留。录音可能包含谈话等私人内容，请仅在可信网络中访问。</footer>
   </main>
   <script type="module" src="/app.js"></script>
 </body>

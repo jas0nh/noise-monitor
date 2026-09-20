@@ -50,6 +50,20 @@ function noiseSnapshot(range) {
     audioUrl: row.audio_path ? `/api/audio/${encodeURIComponent(row.id)}` : null,
     audioBytes: row.audio_bytes,
   }));
+  const topLoudest = database.prepare(`SELECT id, sampled_at, duration_seconds,
+    laeq, peak, floor, source, audio_path, audio_bytes
+    FROM noise_samples WHERE audio_path IS NOT NULL
+    ORDER BY laeq DESC, sampled_at DESC LIMIT 5`).all().map((row) => ({
+      id: row.id,
+      sampledAt: row.sampled_at,
+      durationSeconds: row.duration_seconds,
+      laeq: row.laeq,
+      peak: row.peak,
+      floor: row.floor,
+      source: row.source,
+      audioUrl: `/api/audio/${encodeURIComponent(row.id)}`,
+      audioBytes: row.audio_bytes,
+    }));
   return {
     range: selectedRange,
     generatedAt: now,
@@ -60,6 +74,7 @@ function noiseSnapshot(range) {
       audio_bytes AS audioBytes
       FROM noise_samples ORDER BY sampled_at DESC LIMIT 1`).get() ?? null,
     samples,
+    topLoudest,
     monitor: getMonitorState(database),
   };
 }
