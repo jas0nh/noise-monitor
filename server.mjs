@@ -125,7 +125,7 @@ const server = createServer((request, response) => {
   }
   response.writeHead(200, {
     "Content-Type": mime.get(path.extname(resolved)) || "application/octet-stream",
-    "Cache-Control": pathname === "/index.html" ? "no-cache" : "public, max-age=3600",
+    "Cache-Control": "no-cache",
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
